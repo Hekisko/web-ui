@@ -69,6 +69,11 @@ import {TabsSettingsModalComponent} from './tabs-settings/tabs-settings-modal.co
 import {ViewLinkTypePermissionsModalComponent} from './view-modal/link-type-permissions/view-link-type-permissions-modal.component';
 import {ViewSettingsModalComponent} from './view-modal/settings/view-settings-modal.component';
 import {ShareViewModalComponent} from './view-modal/share/share-view-modal.component';
+import {AiMassEditModalComponent} from "./attribute/ai/ai-mass-edit/ai-mass-edit-modal.component";
+import {AiCheckValuesModalComponent} from "./attribute/ai/ai-check-values/ai-check-values-modal.component";
+import {
+  AiSuggestDataTypeModalComponent
+} from "./attribute/ai/ai-suggest-data-type/ai-suggest-data-type-modal.component";
 
 type Options = ModalOptions & {initialState: any};
 
@@ -282,6 +287,37 @@ export class ModalService {
   ): BsModalRef {
     const initialState = {attributeId, collectionId, linkTypeId, workspace};
     return this.showStaticDialog(initialState, AttributeTypeModalComponent);
+  }
+
+  public showAiCheckValues(
+    attributeId: string,
+    collectionId: string,
+    tableId: string,
+    linkTypeId?: string,
+    workspace?: Workspace
+  ): BsModalRef {
+    const initialState = {attributeId, collectionId, tableId, linkTypeId, workspace};
+    return this.showStaticDialog(initialState, AiCheckValuesModalComponent);
+  }
+
+  public showAiMassEdit(
+    attributeId: string,
+    collectionId: string,
+    linkTypeId?: string,
+    workspace?: Workspace
+  ): BsModalRef {
+    const initialState = {attributeId, collectionId, linkTypeId, workspace};
+    return this.showStaticDialog(initialState, AiMassEditModalComponent);
+  }
+
+  public showAiSuggestDataType(
+    attributeId: string,
+    collectionId: string,
+    linkTypeId?: string,
+    workspace?: Workspace
+  ): BsModalRef {
+    const initialState = {attributeId, collectionId, linkTypeId, workspace};
+    return this.showStaticDialog(initialState, AiSuggestDataTypeModalComponent);
   }
 
   public showAttributeLock(

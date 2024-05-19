@@ -107,6 +107,10 @@ export class PublicDocumentService implements DocumentService {
     return of(documentId);
   }
 
+  public removeDocuments(collectionId: string, documentIds: string[], workspace?: Workspace): Observable<any> {
+    return of(true);
+  }
+
   public addFavorite(collectionId: string, documentId: string, workspace?: Workspace): Observable<any> {
     return of(true);
   }

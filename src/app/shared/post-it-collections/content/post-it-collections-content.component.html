@@ -9,6 +9,8 @@
 
       <table-import-button *ngIf="canImportCollection" class="ms-2 mt-2">
       </table-import-button>
+
+      <ai-create-table-button class="ms-3 mt-2"/>
     </div>
 
     <div class="grid mt-3" *ngIf="{truncateContent: truncateContent$ | async} as data">

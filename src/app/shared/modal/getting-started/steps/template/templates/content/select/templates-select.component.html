@@ -1,12 +1,46 @@
-<div class="px-3 pt-2 pb-3">
+<div class="px-3 pt-2 pb-3" *ngIf="selectedTag !== 'AI'">
   <img [src]="tagImageUrl" alt=""
        class="main-image"/>
 </div>
 
+<div *ngIf="selectedTag === 'AI'">
+  <textarea ngModel [value]="projectDescription"
+            name="projectDescription"
+            #projectDescription="ngModel"
+            class="project-description"
+            type="text"
+            [placeholder]="aiProjectDescriptionPlaceHolder()"
+            [rows]="3"
+            (input)="onInputChanged(projectDescription.control.value)"
+  ></textarea>
+  <div class="container me-2">
+    <div *ngIf="errorMessage$.value !== ''">
+      <div class="error-message me-2">{{errorMessage$.value}}</div>
+    </div>
+    <div *ngIf="onTemplateSuggestionsReceived(aiTemplateSuggestions)">
+      <div class="spinner me-2"></div>
+    </div>
+    <button class="btn btn-primary text-nowrap me-4"
+            [disabled]="projectDescription$.value === ''"
+            (click)="updateTemplateByAi()">
+      <i class="fa-brands fa-get-pocket me-1"></i>
+      <span i18n="@@button.ai.template">Get AI suggestions</span>&nbsp;
+    </button>
+  </div>
+</div>
+
 <h3 *ngIf="selectedTag" class="mt-3 mb-0 text-center">{{selectedTag}}</h3>
 
-<div class="d-flex justify-content-around flex-wrap mt-4">
+<div *ngIf="selectedTag !== 'AI'" class="d-flex justify-content-around flex-wrap mt-4" >
   <template-item *ngFor="let template of templates"
+                 class="d-block mb-3"
+                 [template]="template"
+                 (click)="selectTemplate.emit(template)">
+  </template-item>
+</div>
+
+<div *ngIf="selectedTag === 'AI'" class="d-flex justify-content-around flex-wrap mt-4">
+  <template-item *ngFor="let template of aiSelectedTemplates$ | async"
                  class="d-block mb-3"
                  [template]="template"
                  (click)="selectTemplate.emit(template)">

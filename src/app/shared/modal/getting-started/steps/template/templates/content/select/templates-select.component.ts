@@ -16,12 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output, signal,
+  SimpleChanges, WritableSignal
+} from '@angular/core';
 
 import {removeAccentFromString} from '@lumeer/utils';
 
 import {Project} from '../../../../../../../../core/store/projects/project';
-
+import {BehaviorSubject} from "rxjs";
+import {$localize} from "@angular/localize/init";
+import {AiService} from "../../../../../../../../core/ai/ai.service";
+import {AiTemplateSuggestionResponse} from "../../../../../../../../core/model/ai-template-suggestions";
 @Component({
   selector: 'templates-select',
   templateUrl: './templates-select.component.html',
@@ -43,7 +54,23 @@ export class TemplatesSelectComponent implements OnChanges {
 
   public tagImageUrl: string;
 
+  public aiSelectedTemplates$: BehaviorSubject<Project[]> = new BehaviorSubject<Project[]>([]);
+  public projectDescription$: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  public projectDescription: string;
+
+  public errorMessage$ = new BehaviorSubject<string>("");
+
+  public aiTemplateSuggestions: WritableSignal<AiTemplateSuggestionResponse | null>;
+
+  constructor(
+    private aiService: AiService
+  ) {}
+
   public ngOnChanges(changes: SimpleChanges) {
+    if (changes.selectedTag.currentValue === "AI") {
+      this.aiSelectedTemplates$.next([...this.templates]);
+      return;
+    }
     if (changes.selectedTag) {
       this.tagImageUrl = this.createTagImageUrl();
     }
@@ -52,5 +79,53 @@ export class TemplatesSelectComponent implements OnChanges {
   private createTagImageUrl(): string {
     const tagWithoutAccent = removeAccentFromString(this.selectedTag).replace(/ /g, '_');
     return `https://www.lumeer.io/wp-content/uploads/lumeer-projects/${tagWithoutAccent}.jpg`;
+  }
+
+  public aiProjectDescriptionPlaceHolder() {
+    return $localize`:@@ai.create.table.modal.input.placeholder:Describe your project`;
+  }
+
+  public onInputChanged(value: any) {
+    this.projectDescription = value;
+    this.projectDescription$.next(value);
+  }
+
+  public updateTemplateByAi() {
+    this.errorMessage$.next("");
+    this.projectDescription$.next("");
+    this.aiService.templateSuggestions$ = signal(null);
+    this.aiTemplateSuggestions = this.aiService.templateSuggestions$;
+    this.aiService.fetchTemplateSuggestions(
+      {
+        projectDescription: this.projectDescription
+      }
+    );
+  }
+
+  public onTemplateSuggestionsReceived(data: any): boolean {
+
+    if (data === undefined) {
+      return false;
+    } else if (data() === null) {
+      return true;
+    } else {
+
+      this.projectDescription$.next(this.projectDescription);
+      this.errorMessage$.next("");
+      this.aiTemplateSuggestions = undefined;
+
+      if (data().length == 0 || data()["error"]) {
+        this.errorMessage$.next(data()["errorMessage"]);
+        return false;
+      }
+
+      this.aiSelectedTemplates$.next(
+        this.templates.filter(
+          template =>
+            data()["bestMatchTemplates"].includes(template.name)
+        )
+      );
+      return false;
+    }
   }
 }

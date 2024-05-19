@@ -143,6 +143,18 @@ export class ApiDocumentService extends BaseService implements DocumentService {
     });
   }
 
+  public removeDocuments(
+    collectionId: string,
+    documentIds: string[],
+    workspace?: Workspace
+  ): Observable<any> {
+    return this.httpClient.post(`${this.apiPrefix({...workspace, collectionId})}/delete`,
+      documentIds,
+      {
+      headers: {...this.workspaceHeaders(workspace)},
+    });
+  }
+
   public addFavorite(collectionId: string, documentId: string, workspace?: Workspace): Observable<any> {
     return this.httpClient.post(
       `${this.apiPrefix({

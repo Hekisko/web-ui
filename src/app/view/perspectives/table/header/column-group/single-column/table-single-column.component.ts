@@ -29,11 +29,21 @@ import {
   ViewChild,
 } from '@angular/core';
 
-import {Actions, ofType} from '@ngrx/effects';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {Action, Store, select} from '@ngrx/store';
 
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
-import {distinctUntilChanged, switchMap, take} from 'rxjs/operators';
+import {
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  first,
+  map, mergeMap,
+  switchMap,
+  take,
+  tap,
+  withLatestFrom
+} from 'rxjs/operators';
 
 import {AllowedPermissions} from '../../../../../../core/model/allowed-permissions';
 import {AppState} from '../../../../../../core/store/app.state';
@@ -44,11 +54,19 @@ import {LinkTypesAction} from '../../../../../../core/store/link-types/link-type
 import {LinkType} from '../../../../../../core/store/link-types/link.type';
 import {Query} from '../../../../../../core/store/navigation/query/query';
 import {NotificationsAction} from '../../../../../../core/store/notifications/notifications.action';
-import {TableHeaderCursor, areTableHeaderCursorsEqual} from '../../../../../../core/store/tables/table-cursor';
+import {
+  TableHeaderCursor,
+  areTableHeaderCursorsEqual,
+  moveTableCursor
+} from '../../../../../../core/store/tables/table-cursor';
 import {TableConfigColumn, TableModel} from '../../../../../../core/store/tables/table.model';
 import {findTableColumn, getTablePart, splitColumnPath} from '../../../../../../core/store/tables/table.utils';
 import {TablesAction, TablesActionType} from '../../../../../../core/store/tables/tables.action';
-import {selectTableCursorSelected} from '../../../../../../core/store/tables/tables.selector';
+import {
+  selectTableById,
+  selectTableCursor,
+  selectTableCursorSelected, selectTablePart
+} from '../../../../../../core/store/tables/tables.selector';
 import {View} from '../../../../../../core/store/views/view';
 import {Direction} from '../../../../../../shared/direction';
 import {KeyCode, isKeyPrintable, keyboardEventCode} from '../../../../../../shared/key-code';
@@ -63,6 +81,10 @@ import {initForceTouch} from '../../../../../../shared/utils/html-modifier';
 import {AttributeNameChangedPipe} from '../../../shared/pipes/attribute-name-changed.pipe';
 import {TableAttributeSuggestionsComponent} from './attribute-suggestions/table-attribute-suggestions.component';
 import {TableColumnContextMenuComponent} from './context-menu/table-column-context-menu.component';
+import {NavigationAction} from "../../../../../../core/store/navigation/navigation.action";
+import {
+  createViewCursorFromTableCursor
+} from "../../../../../../core/store/tables/utils/cursor/create-view-cursor-from-table-cursor";
 
 @Component({
   selector: 'table-single-column',
@@ -377,6 +399,34 @@ export class TableSingleColumnComponent implements OnInit, OnChanges, OnDestroy 
     } else {
       this.removeUninitializedColumn();
     }
+  }
+
+  public onSuggestAttributeType() {
+    this.modalService.showAiSuggestDataType(this.attribute.id, this.collection?.id, this.linkType?.id);
+  }
+
+  public onCheckValues() {
+    const ref = this.modalService.showAiCheckValues(this.attribute.id, this.collection?.id, this.table.id, this.linkType?.id);
+    ref.onHidden.pipe(
+      tap((value: { id: number, clickedValue: any}) => {
+        if (value?.clickedValue) {
+          setTimeout(() => {
+            this.store$.dispatch(new TablesAction.SetCursor({
+              cursor: {
+                tableId: this.table.id,
+                partIndex: 0,
+                rowPath: [value.clickedValue.valuePresentInRows[0]],
+                columnIndex: value.clickedValue.attribute.id[1] - 1
+              }
+            }));
+          }, 0);
+        }
+      })
+    ).subscribe();
+  }
+
+  public onMassEdit() {
+    this.modalService.showAiMassEdit(this.attribute.id, this.collection?.id, this.linkType?.id);
   }
 
   private showRemoveConfirm() {

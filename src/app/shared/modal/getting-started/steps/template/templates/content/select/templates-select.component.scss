@@ -9,3 +9,35 @@
   background-repeat: no-repeat;
   object-fit: cover;
 }
+
+.project-description {
+  width: calc(100% - 80px);
+  margin: 40px 40px 10px;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #000;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

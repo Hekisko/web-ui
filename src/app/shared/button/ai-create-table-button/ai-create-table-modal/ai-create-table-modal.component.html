@@ -1,0 +1,29 @@
+<modal-wrapper
+  [dialogType]="dialogType.Primary"
+  (onClose)="hideDialog()"
+  (onSubmit)="onSubmit()"
+  [submitDisabled]="projectDesc$.value === ''"
+  >
+
+  <span class="title" i18n="@@ai.create.table.modal.title">Describe your project and Lumeer suggests the structure of tables for you.</span>
+
+  <div class="body">
+    <textarea ngModel [value]="desc" name="projectDesc" #projectDesc="ngModel"
+              class=" input-project-desc p-2 ms-5 me-5 mt-2" type="text"
+              [placeholder]="projectPlaceHolder()"
+              [rows]="3"
+              (input)="onInputChanged(projectDesc.control.value)"
+    ></textarea>
+    <div *ngIf="onDataReceived(tables)" class="container">
+      <div class="spinner"></div>
+    </div>
+    <div *ngIf="errorMessage$.value !== ''" class="container">
+      <div class="error-message">{{errorMessage$.value}}</div>
+    </div>
+  </div>
+
+  <span class="button-cancel" i18n="@@button.cancel">Cancel</span>
+  <span class="button-submit" i18n="@@button.send">Send</span>
+</modal-wrapper>
+
+

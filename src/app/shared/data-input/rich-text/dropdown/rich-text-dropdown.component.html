@@ -34,6 +34,49 @@
       <button class="btn btn-primary text-nowrap float-end" [disabled]="readonly" (click)="onSave()">
         <i class="far fa-check"></i>&nbsp;<span i18n="@@button.save">Save</span>&nbsp;<small class="text-muted small">{{macOS ? '⌘ ⏎' : 'Ctrl + ⏎'}}</small>
       </button>
+
+      <button class="btn btn-link clickable text-decoration-none text-primary text-nowrap float-end me-3"
+              [disabled]="!buttonEnabled$.value"
+              (click)="onExtend()">
+        <i class="far fa-arrows-maximize me-1"></i>
+        <span i18n="@@button.ai.extend">AI Extend</span>&nbsp;
+      </button>
+
+      <button class="btn btn-link clickable text-decoration-none text-primary text-nowrap float-end me-2"
+              [disabled]="!buttonEnabled$.value"
+              (click)="onContract()">
+        <i class="far fa-arrows-minimize me-1"></i>
+        <span i18n="@@button.ai.contract">AI Contract</span>&nbsp;
+      </button>
+
+      <div *ngIf="onDataReceived(aiGeneratedText)"
+           class="float-end me-2">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="errorMessage$.value !== ''"
+           class="float-end me-2 error-message">
+        <div class="error-message">{{errorMessage$.value}}</div>
+      </div>
+
+      <button *ngIf="this.dataBeforeExpand$.value !== undefined && buttonEnabled$.value"
+              class="btn btn-link clickable text-decoration-none text-primary text-nowrap float-end me-2"
+              [disabled]="readonly"
+              (click)="undoExtend()">
+        <i class="fa-solid fa-arrow-left me-1"></i>
+        <span i18n="@@button.ai.extend.undo">Undo extend</span>&nbsp;
+      </button>
+
+      <button *ngIf="this.dataBeforeContract$.value !== undefined && buttonEnabled$.value"
+              class="btn btn-link clickable text-decoration-none text-primary text-nowrap float-end me-2"
+              [disabled]="readonly"
+              (click)="undoContract()">
+        <i class="fa-solid fa-arrow-left me-1"></i>
+        <span i18n="@@button.ai.contract.undo">Undo contract</span>&nbsp;
+      </button>
+
+
+
     </div>
   </div>
 </fullscreen-dropdown>

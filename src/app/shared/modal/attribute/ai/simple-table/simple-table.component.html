@@ -1,0 +1,31 @@
+<div *ngIf="simpleTable !== undefined">
+  <h5 class="m-1">{{simpleTable.tableName}}</h5>
+  <div class="table-container">
+    <table>
+      <thead class="highlighted-header">
+        <tr>
+          <th *ngFor="let header of simpleTable.headers"
+              [style.min-width.px]="100">
+            {{header.attribute.name}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let row of simpleTable.rows">
+        <td *ngFor="let cell of row.cells">
+          <data-input
+            [constraint]="cell.attribute?.constraint"
+            [dataValue]="cell.dataValue"
+            [focus]="true"
+            [readonly]="true"
+            [style.min-width.px]="50"
+            [style.width.px]="simpleTable.columnWidth[cell.attribute.id] ? simpleTable.columnWidth[cell.attribute.id] * 10 : 50"
+            class="d-block h-100 data-input">
+          </data-input>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

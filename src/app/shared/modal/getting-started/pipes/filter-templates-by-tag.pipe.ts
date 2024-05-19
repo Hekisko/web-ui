@@ -25,6 +25,9 @@ import {Project} from '../../../../core/store/projects/project';
 })
 export class FilterTemplatesByTagPipe implements PipeTransform {
   public transform(templates: Project[], tag: string): Project[] {
+    if (tag === "AI") {
+      return templates;
+    }
     return (tag && templates.filter(template => template.templateMetadata?.tags?.includes(tag))) || [];
   }
 }

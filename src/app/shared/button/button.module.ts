@@ -21,10 +21,21 @@ import {NgModule} from '@angular/core';
 
 import {TableImportButtonComponent} from './import/table-import-button.component';
 import {SeeMoreButtonComponent} from './see-more/see-more-button.component';
+import {AiCreateTableButtonComponent} from "./ai-create-table-button/ai-create-table-button.component";
+import {
+  AiCreateTableModalComponent
+} from "./ai-create-table-button/ai-create-table-modal/ai-create-table-modal.component";
+import {ModalWrapperModule} from "../modal/wrapper/modal-wrapper.module";
+import {FormsModule} from "@angular/forms";
+import {
+  AiCreateTableConfirmationModalComponent
+} from "./ai-create-table-button/ai-create-table-modal/ai-create-table-confirmation-modal/ai-create-table-confirmation-modal.component";
+import {PipesModule} from "../pipes/pipes.module";
+import {AiModalModule} from "../modal/attribute/ai/ai-modal.module";
 
 @NgModule({
-  declarations: [SeeMoreButtonComponent, TableImportButtonComponent],
-  imports: [CommonModule],
-  exports: [SeeMoreButtonComponent, TableImportButtonComponent],
+  declarations: [SeeMoreButtonComponent, TableImportButtonComponent, AiCreateTableButtonComponent, AiCreateTableModalComponent, AiCreateTableConfirmationModalComponent],
+    imports: [CommonModule, ModalWrapperModule, FormsModule, PipesModule, AiModalModule],
+  exports: [SeeMoreButtonComponent, TableImportButtonComponent, AiCreateTableButtonComponent],
 })
 export class ButtonModule {}

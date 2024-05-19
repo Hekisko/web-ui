@@ -20,6 +20,9 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 
 import {configuration} from '../../../environments/configuration';
+import {AiRestService} from './ai/ai-rest-service';
+import {ApiAiRestService} from './ai/api-ai-rest.service';
+import {PublicAiRestService} from './ai/public-ai-rest.service';
 import {ApiAttachmentsService} from './attachments/api-attachments.service';
 import {AttachmentsService} from './attachments/attachments.service';
 import {PublicAttachmentsService} from './attachments/public-attachments.service';
@@ -150,6 +153,10 @@ import {ViewService} from './view/view.service';
     {
       provide: InformationStoreService,
       useClass: configuration.publicView ? PublicInformationStoreService : ApiInformationStoreService,
+    },
+    {
+      provide: AiRestService,
+      useClass: configuration.publicView ? PublicAiRestService : ApiAiRestService,
     },
   ],
 })

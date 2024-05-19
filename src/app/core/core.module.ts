@@ -33,6 +33,7 @@ import {TimepickerModule} from 'ngx-bootstrap/timepicker';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 
 import {SharedModule} from '../shared/shared.module';
+import {AiService} from './ai/ai.service';
 import {DocumentRedirectComponent} from './components/document-redirect.component';
 import {HomeComponent} from './components/home.component';
 import {RedirectComponent} from './components/redirect.component';
@@ -79,6 +80,7 @@ import {ProjectValidators} from './validators/project.validators';
       useClass: SentryErrorHandler,
     },
     httpInterceptorProviders,
+    AiService,
     TemplateService,
     BaseService,
     ImportService,

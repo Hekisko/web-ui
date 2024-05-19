@@ -1,0 +1,41 @@
+<modal-wrapper class="d-block" [dialogType]="'primary'"
+               [submitDisabled]="suggestedAttribute$.value === null"
+               [customHeader]="true"
+               (onSubmit)="onSubmit()"
+               (onClose)="hideDialog()"
+               *ngIf="{collection: collection$ | async, linkType: linkType$ | async, attribute: attribute$ | async} as data">
+
+  <attribute-modal-header class="custom-header"
+                          [resource]="data.collection || data.linkType"
+                          [textColor]="data.collection?.color"
+                          [attribute]="data.attribute">
+  </attribute-modal-header>
+
+  <div class="body">
+    <div class="m-4">
+      <div class="mb-2">
+        <span i18n="@@ai.suggest.data.type.text">Based on the values, I suggest using the attribute type:</span>
+      </div>
+      <div class="mb-2 bold-text" *ngIf="suggestedAttribute$.value !== null">
+        <span>{{getAttributeAsText()}}</span>
+      </div>
+      <div *ngIf="onDataReceived(aiSuggestDataType)" class="container-loading">
+        <div class="spinner"></div>
+      </div>
+      <div *ngIf="errorMessage$.value !== ''" class="container-loading">
+        <div class="error-message">{{errorMessage$.value}}</div>
+      </div>
+    </div>
+  </div>
+
+  <span class="button-cancel" i18n="@@button.cancel">Cancel</span>
+  <span class="button-submit" i18n="@@button.save">Save</span>
+
+
+</modal-wrapper>
+
+<ng-template #notFound>
+  <div class="body p-4">
+    <h4 class="text-danger text-center my-2" i18n="@@resource.attribute.deleted">Such an attribute does not exist.</h4>
+  </div>
+</ng-template>

@@ -1,0 +1,43 @@
+<modal-wrapper class="d-block" [dialogType]="'primary'"
+               [submitDisabled]="wantedChangesDesc$.value === ''"
+               [customHeader]="true"
+               (onSubmit)="onSubmit()"
+               (onClose)="hideDialog()"
+               *ngIf="{collection: collection$ | async, linkType: linkType$ | async, attribute: attribute$ | async} as data">
+
+  <attribute-modal-header class="custom-header"
+                          [resource]="data.collection || data.linkType"
+                          [textColor]="data.collection?.color"
+                          [attribute]="data.attribute">
+  </attribute-modal-header>
+
+  <div class="body">
+    <div class="m-4">
+      <div class="mb-2">
+        <span i18n="@@ai.mass.edit.modal.title">Describe what you want to delete</span>
+      </div>
+      <textarea ngModel [value]="changesDesc" name="changesDesc" #changesDesc="ngModel"
+                class="input-project-desc p-2" type="text"
+      [placeholder]="wantedChangesHolder()"
+      [rows]="3"
+      (input)="onInputChanged(changesDesc.control.value)"
+      ></textarea>
+    </div>
+    <div *ngIf="onDataReceived(aiMassDeleteResponse)" class="container">
+      <div class="spinner"></div>
+    </div>
+    <div *ngIf="errorMessage$.value !== ''" class="container">
+      <div class="error-message">{{errorMessage$.value}}</div>
+    </div>
+  </div>
+
+  <span class="button-cancel" i18n="@@button.cancel">Cancel</span>
+  <span class="button-submit" i18n="@@button.send">Send</span>
+
+</modal-wrapper>
+
+<ng-template #notFound>
+  <div class="body p-4">
+    <h4 class="text-danger text-center my-2" i18n="@@resource.attribute.deleted">Such an attribute does not exist.</h4>
+  </div>
+</ng-template>

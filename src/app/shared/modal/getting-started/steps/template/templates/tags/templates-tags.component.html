@@ -15,6 +15,13 @@
 <div class="tags pt-2 px-3 pb-3">
 
   <ul class="list-group list-group-flush" role="tablist" *ngIf="!search">
+    <li
+        (click)="selectTag.emit('AI')"
+        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center cursor-pointer"
+        [class.active]="'AI' === selectedTag">
+      <div class="text-truncate" i18n="@@ai.assistant">AI Assistant</div>
+      <i class="fas fa-chevron-right small"></i>
+    </li>
     <li *ngFor="let tag of tags"
         (click)="selectTag.emit(tag)"
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center cursor-pointer"

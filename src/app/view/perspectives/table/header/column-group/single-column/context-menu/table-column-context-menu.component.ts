@@ -69,6 +69,15 @@ export class TableColumnContextMenuComponent {
   public configure = new EventEmitter();
 
   @Output()
+  public suggestAttributeType = new EventEmitter();
+
+  @Output()
+  public checkValues = new EventEmitter();
+
+  @Output()
+  public massEdit = new EventEmitter();
+
+  @Output()
   public lockSettings = new EventEmitter();
 
   @Output()

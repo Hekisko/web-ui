@@ -73,6 +73,13 @@
       </div>
     </button>
     <hr class="my-2">
+    <button mat-menu-item class="prevent-click" [matMenuTriggerFor]="aiMenu">
+      <div class="d-flex align-items-baseline">
+        <i class="far fa-fw fa-microchip me-1" aria-hidden="true"></i>
+        <span class="flex-grow-1" i18n="@@ai.assistant">AI Assistant</span>
+      </div>
+    </button>
+    <hr class="my-2">
     <button (click)="onClick($event); addNextColumn()"
             [disabled]="!allowedPermissions?.roles?.AttributeEdit"
             mat-menu-item
@@ -140,6 +147,29 @@
       <div class="d-flex align-items-baseline">
         <i class="far fa-fw fa-copy me-1" aria-hidden="true"></i>
         <span class="flex-grow-1" i18n="@@table.header.menu.copy.values.unique">Copy unique column values</span>
+      </div>
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #aiMenu="matMenu">
+  <ng-template matMenuContent>
+    <button mat-menu-item (click)="onClick($event); suggestAttributeType.emit()">
+      <div class="d-flex align-items-baseline">
+        <i class="far fa-fw fa-face-thinking me-1" aria-hidden="true"></i>
+        <span class="flex-grow-1" i18n="@@table.header.menu.ai.suggest.attribute">Suggest the type of attribute</span>
+      </div>
+    </button>
+    <button mat-menu-item (click)="onClick($event); checkValues.emit()">
+      <div class="d-flex align-items-baseline">
+        <i class="far fa-duotone fa-check-double me-1" aria-hidden="true"></i>
+        <span class="flex-grow-1" i18n="@@table.header.menu.ai.check.values">Check values</span>
+      </div>
+    </button>
+    <button mat-menu-item (click)="onClick($event); massEdit.emit()">
+      <div class="d-flex align-items-baseline">
+        <i class="far fa-fw fa-pen-to-square me-1" aria-hidden="true"></i>
+        <span class="flex-grow-1" i18n="@@table.header.menu.ai.check.mass.delete">Mass delete</span>
       </div>
     </button>
   </ng-template>

@@ -47,6 +47,8 @@ export abstract class DocumentService {
 
   public abstract removeDocument(collectionId: string, documentId: string, workspace?: Workspace): Observable<any>;
 
+  public abstract removeDocuments(collectionId: string, documentIds: string[], workspace?: Workspace): Observable<any>;
+
   public abstract addFavorite(collectionId: string, documentId: string, workspace?: Workspace): Observable<any>;
 
   public abstract removeFavorite(collectionId: string, documentId: string, workspace?: Workspace): Observable<any>;

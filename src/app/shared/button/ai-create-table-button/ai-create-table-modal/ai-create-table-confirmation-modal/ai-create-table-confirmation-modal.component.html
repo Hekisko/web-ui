@@ -1,0 +1,43 @@
+<modal-wrapper
+  [dialogType]="dialogType.Primary"
+  (onClose)="hideDialog()"
+  (onSubmit)="onSubmit()"
+  (onSecondarySubmit)="onSecondarySubmit()"
+  [showSecondarySubmit]="true"
+  [secondarySubmitDisabled]="requestedChanges$.value === ''"
+  >
+
+  <span class="title" i18n="@@ai.create.table.modal.confirmation.title">AI suggestions</span>
+
+  <div class="body m-4">
+    <div *ngIf="data !== undefined && data !== null" class="table-container">
+      <div *ngFor="let simpleTable of simpleTables" class="mb-4">
+        <simple-table [simpleTable]="simpleTable">
+        </simple-table>
+      </div>
+    </div>
+    <div class="m-2">
+      <div>
+        <span i18n="@@ai.create.table.modal.confirmation.request.changes">Would you like any changes?</span>
+      </div>
+      <textarea ngModel [value]="requestedChanges" name="requestedChanges" #requestedChanges="ngModel"
+                class="p-2 input-required-changes" type="text"
+                [placeholder]="requestedChangesPlaceHolder()"
+                [rows]="3"
+                (input)="onInputChanged(requestedChanges.control.value)"
+      ></textarea>
+      <div *ngIf="onDataReceived(tables)" class="container">
+        <div class="spinner"></div>
+      </div>
+      <div *ngIf="errorMessage$.value !== ''" class="container">
+        <div class="error-message">{{errorMessage$.value}}</div>
+      </div>
+    </div>
+  </div>
+
+  <span class="button-cancel" i18n="@@button.cancel">Cancel</span>
+  <span class="button-secondary-submit" i18n="@@button.update">Update</span>
+  <span class="button-submit" i18n="@@button.save">Save</span>
+</modal-wrapper>
+
+

@@ -16,7 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import {ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output, signal,
+  ViewChild,
+  WritableSignal
+} from '@angular/core';
 
 import {ContentChange, QuillEditorComponent} from 'ngx-quill';
 
@@ -26,6 +35,10 @@ import {KeyCode, keyboardEventCode} from '../../../key-code';
 import {defaultTextEditorOptions} from '../../../modal/text-editor/text-editor.utils';
 import {textContainsOnlyBrTags} from '../../../utils/string.utils';
 import {isMacOS} from '../../../utils/system.utils';
+import {DeltaOperation} from "quill";
+import {BehaviorSubject} from "rxjs";
+import {AiAssistedWritingResponse, ETypeAssistedWriting} from "../../../../core/model/ai-assisted-writing";
+import {AiService} from "../../../../core/ai/ai.service";
 
 @Component({
   selector: 'rich-text-dropdown',
@@ -68,6 +81,16 @@ export class RichTextDropdownComponent extends FullscreenDropdownDirective {
   public readonly macOS = isMacOS();
 
   public valid = true;
+  public dataBeforeExpand$ = new BehaviorSubject<DeltaOperation[]>(undefined);
+  public dataBeforeContract$ = new BehaviorSubject<DeltaOperation[]>(undefined);
+  public buttonEnabled$ = new BehaviorSubject<boolean>(true);
+  public aiGeneratedText: WritableSignal<AiAssistedWritingResponse | null>;
+  public errorMessage$ = new BehaviorSubject<string>("");
+  private isAIUndoAvailable: boolean = false;
+
+  constructor(private aiService: AiService) {
+    super();
+  }
 
   private keyboardEventListener = (event: KeyboardEvent) => {
     const code = keyboardEventCode(event);
@@ -82,6 +105,13 @@ export class RichTextDropdownComponent extends FullscreenDropdownDirective {
 
   public contentChanged(event: ContentChange) {
     this.checkValid(event.text);
+    this.errorMessage$.next("");
+    if (this.isAIUndoAvailable) {
+      this.isAIUndoAvailable = false;
+      return;
+    }
+    this.dataBeforeExpand$.next(undefined);
+    this.dataBeforeContract$.next(undefined);
   }
 
   private checkValid(text: string) {
@@ -140,5 +170,88 @@ export class RichTextDropdownComponent extends FullscreenDropdownDirective {
   public close() {
     super.close();
     document.removeEventListener('keydown', this.keyboardEventListener, {capture: true});
+  }
+
+
+  public onDataReceived(data: any): boolean {
+
+    if (data === undefined) {
+      return false;
+    } else if (data() === null) {
+      return true;
+    } else {
+
+      this.buttonEnabled$.next(true);
+      this.errorMessage$.next("");
+      this.aiGeneratedText = undefined;
+
+      if (data().length == 0 || data()["error"]) {
+        this.errorMessage$.next(data()["errorMessage"]);
+        this.dataBeforeExpand$.next(undefined);
+        this.dataBeforeContract$.next(undefined);
+        return false;
+      }
+
+      const changes = [{delete: this.quillEditorComponent.quillEditor.getLength()}, {insert: data()["generatedString"]}];
+      const newDelta = this.quillEditorComponent.quillEditor.getContents();
+      newDelta.ops = changes;
+      this.isAIUndoAvailable = true;
+      this.quillEditorComponent.quillEditor.updateContents(newDelta, "user");
+      return false;
+    }
+  }
+
+  onExtend() {
+    this.dataBeforeExpand$.next(this.quillEditorComponent.quillEditor.getContents().ops);
+    this.dataBeforeContract$.next(undefined);
+
+    this.aiService.assistedWriting$ = signal(null);
+    this.aiGeneratedText = this.aiService.assistedWriting$;
+    this.aiService.fetchAssistedWriting(
+      {
+        inputString: this.quillEditorComponent.quillEditor.getText(),
+        eTypeAssistedWriting: ETypeAssistedWriting.EXPAND
+      }
+    );
+    this.buttonEnabled$.next(false);
+  }
+
+  undoExtend() {
+    const previousContent = this.dataBeforeExpand$.value;
+    if (previousContent === undefined) {
+      return;
+    }
+    const newContent = [{delete: this.quillEditorComponent.quillEditor.getLength()}, ...previousContent];
+    const newDelta = this.quillEditorComponent.quillEditor.getContents();
+    newDelta.ops = newContent;
+    this.quillEditorComponent.quillEditor.updateContents(newDelta, "user");
+    this.dataBeforeExpand$.next(undefined);
+  }
+
+  onContract() {
+    this.dataBeforeContract$.next(this.quillEditorComponent.quillEditor.getContents().ops);
+    this.dataBeforeExpand$.next(undefined);
+
+    this.aiService.assistedWriting$ = signal(null);
+    this.aiGeneratedText = this.aiService.assistedWriting$;
+    this.aiService.fetchAssistedWriting(
+      {
+        inputString: this.quillEditorComponent.quillEditor.getText(),
+        eTypeAssistedWriting: ETypeAssistedWriting.CONTRACT
+      }
+    );
+    this.buttonEnabled$.next(false);
+  }
+
+  undoContract() {
+    const previousContent = this.dataBeforeContract$.value;
+    if (previousContent === undefined) {
+      return;
+    }
+    const newContent = [{delete: this.quillEditorComponent.quillEditor.getLength()}, ...previousContent];
+    const newDelta = this.quillEditorComponent.quillEditor.getContents();
+    newDelta.ops = newContent;
+    this.quillEditorComponent.quillEditor.updateContents(newDelta, "user");
+    this.dataBeforeContract$.next(undefined);
   }
 }
